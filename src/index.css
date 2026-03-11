@@ -1,17 +1,11 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0a0a0a;
-  --tunnel: #111114;
-  --card-bg: #1a1a20;
-  --card-border: #2a2a35;
-  --card-hover: #22222c;
+  --bg: #080810;
   --text: #e8e4d9;
   --text-dim: #6b6b78;
-  --text-muted: #3a3a45;
+  --text-muted: #2e2e3a;
   --gold: #f5c842;
-  --roundel-red: #e32017;
-  --roundel-blue: #003688;
 }
 
 html, body, #root {
@@ -26,93 +20,76 @@ body {
   overflow-x: hidden;
 }
 
-/* Tunnel background effect */
+/* Deep tunnel background: concentric arched rings fading to black */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255,220,80,0.04) 0%, transparent 70%),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 80px,
-      rgba(255,255,255,0.008) 80px,
-      rgba(255,255,255,0.008) 81px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 60px,
-      rgba(255,255,255,0.005) 60px,
-      rgba(255,255,255,0.005) 61px
+    radial-gradient(ellipse 120% 80% at 50% 110%, #1a1020 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 50% 110%,  #120818 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 110%,  #0d0510 0%, transparent 45%),
+    repeating-radial-gradient(
+      ellipse 200% 160% at 50% 130%,
+      transparent 0px,
+      transparent 38px,
+      rgba(255,255,255,0.018) 39px,
+      transparent 40px
     );
   pointer-events: none;
   z-index: 0;
 }
 
-/* Tunnel vignette */
+/* Overhead tunnel light strip */
 body::after {
   content: '';
   position: fixed;
-  inset: 0;
-  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0,0,0,0.7) 100%);
+  top: 0; left: 25%; right: 25%; height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255,240,160,0.12), rgba(255,240,160,0.25), rgba(255,240,160,0.12), transparent);
   pointer-events: none;
   z-index: 0;
 }
 
 #root { position: relative; z-index: 1; }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 2px; }
 
-/* Animations */
+/* ── Animations ── */
 @keyframes headlight-sweep {
-  0%   { opacity: 0; transform: scale(0.8); }
-  20%  { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 0; transform: scale(2); }
-}
-
-@keyframes card-match-flash {
-  0%   { box-shadow: 0 0 0px transparent; }
-  30%  { box-shadow: 0 0 30px var(--match-color, #fff), 0 0 60px var(--match-color, #fff); }
-  100% { box-shadow: 0 0 8px var(--match-color, #fff); }
+  0%   { opacity: 0; transform: scale(0.5); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(2.5); }
 }
 
 @keyframes card-wrong-shake {
-  0%, 100% { transform: translateX(0) rotateY(0deg); }
-  20%  { transform: translateX(-6px); }
-  40%  { transform: translateX(6px); }
+  0%, 100% { transform: translateX(0); }
+  20%  { transform: translateX(-7px) rotate(-1deg); }
+  40%  { transform: translateX(7px) rotate(1deg); }
   60%  { transform: translateX(-4px); }
   80%  { transform: translateX(4px); }
 }
 
 @keyframes tunnel-rush {
-  0%   { opacity: 0; transform: scaleX(0.3); }
-  50%  { opacity: 0.6; }
-  100% { opacity: 0; transform: scaleX(1.5); }
-}
-
-@keyframes roundel-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  0%   { opacity: 0; transform: scaleX(0.2) translateX(-40%); }
+  40%  { opacity: 0.7; }
+  100% { opacity: 0; transform: scaleX(1.8) translateX(20%); }
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes card-reveal {
-  from { opacity: 0; transform: scale(0.85) rotateY(-15deg); }
+@keyframes card-deal {
+  from { opacity: 0; transform: scale(0.7) rotateY(-25deg); }
   to   { opacity: 1; transform: scale(1) rotateY(0deg); }
 }
 
 @keyframes pulse-hint {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245,200,66,0.4); }
-  50%       { box-shadow: 0 0 0 8px rgba(245,200,66,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,200,66,0.5), inset 0 0 0 0 rgba(245,200,66,0.1); }
+  50%       { box-shadow: 0 0 0 6px rgba(245,200,66,0), inset 0 0 12px rgba(245,200,66,0.15); }
 }
 
 @keyframes announcement-slide {
@@ -120,4 +97,22 @@ body::after {
   to   { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes match-bloom {
+  0%   { opacity: 0; transform: scale(0.8); }
+  60%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes card-hover-glow {
+  from { box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+  to   { box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.08); }
+}
+
 .fade-up { animation: fade-up 0.5s ease forwards; }
+
+/* Card hover lift — applied via class so CSS handles it cleanly */
+.tube-card-idle:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.07);
+}
+.tube-card-idle { transition: transform 0.18s ease, box-shadow 0.18s ease; }
