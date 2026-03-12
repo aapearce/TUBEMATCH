@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 
-// ── TfL lines — H&C removed ───────────────────────────────────────────────────
+// ── TfL lines ─────────────────────────────────────────────────────────────────
 const LINES = {
   bakerloo:     { name: 'Bakerloo',      color: '#B36305' },
   central:      { name: 'Central',       color: '#E32017' },
@@ -19,7 +19,7 @@ const LINES = {
   liberty:      { name: 'Liberty',       color: '#6B6B6B' },
 }
 
-// ── Full pool of valid pairs (H&C removed) ────────────────────────────────────
+// ── Full pool of valid pairs ───────────────────────────────────────────────────
 const ALL_PAIRS = [
   { id:  1, line: 'bakerloo',     stations: ['Stonebridge Park',              'Kensal Green'] },
   { id:  2, line: 'central',      stations: ['Theydon Bois',                  'Debden'] },
@@ -162,9 +162,6 @@ function HeadlightFlash({ active }) {
 }
 
 // ── THE CARD ──────────────────────────────────────────────────────────────────
-// Face-down: plain dark tile with a subtle crosshatch texture — NO line colour.
-// Face-up (selected / wrong): station name revealed, still no line colour shown.
-// Matched: line colour and name revealed as the reward.
 function TubeCard({ card, state, onClick, hintPulse }) {
   const line = LINES[card.line]
   const isMatched  = state === 'matched'
@@ -173,7 +170,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
   const isIdle     = state === 'idle'
   const lineColor  = line.color
 
-  // Background
   const bg = isMatched
     ? `linear-gradient(160deg, ${lineColor}30 0%, ${lineColor}10 50%, #0e0e18 100%)`
     : isSelected ? 'linear-gradient(160deg, #252535 0%, #1a1a28 100%)'
@@ -215,7 +211,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
         animationIterationCount: hintPulse ? '4' : undefined,
       }}
     >
-      {/* ── Top band: neutral on idle/selected/wrong; line colour only on match ── */}
       <div style={{
         height: '14%',
         background: isMatched
@@ -228,7 +223,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
         padding: '0 7px',
         position: 'relative',
       }}>
-        {/* Subtle crosshatch dots — decorative only, no line identity */}
         {!isMatched && (
           <>
             <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
@@ -248,7 +242,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
         )}
       </div>
 
-      {/* ── Card body ── */}
       <div style={{
         flex: 1,
         display: 'flex',
@@ -259,7 +252,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
         gap: 4,
         position: 'relative',
       }}>
-        {/* Ghost roundel watermark — neutral grey, no line colour */}
         {!isMatched && (
           <div style={{
             position: 'absolute', bottom: 3, right: 3,
@@ -269,7 +261,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
           }} />
         )}
 
-        {/* When idle/not yet selected: show a question mark instead of station name */}
         {isIdle && !hintPulse ? (
           <div style={{
             fontFamily: 'Oswald, sans-serif',
@@ -295,7 +286,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
           </div>
         )}
 
-        {/* Matched: colour dot below name */}
         {isMatched && (
           <div style={{
             width: 8, height: 8, borderRadius: '50%',
@@ -306,7 +296,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
         )}
       </div>
 
-      {/* ── Bottom accent bar — neutral except on match ── */}
       <div style={{
         height: '3px',
         background: isMatched
@@ -316,7 +305,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
         transition: 'all 0.35s ease',
       }} />
 
-      {/* Selection shimmer */}
       {isSelected && (
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -328,7 +316,21 @@ function TubeCard({ card, state, onClick, hintPulse }) {
 }
 
 // ── Main App ──────────────────────────────────────────────────────────────────
-const PAIRS_PER_GAME = 8  // 16 cards → fits comfortably in one screen
+const PAIRS_PER_GAME = 8
+
+const FRESH_STATE = () => ({
+  gameData:     pickRandomPairs(PAIRS_PER_GAME),
+  selected:     [],
+  matched:      new Set(),
+  wrong:        [],
+  cluesLeft:    3,
+  hintCards:    [],
+  mistakes:     0,
+  announcement: null,
+  annSub:       null,
+  annColor:     '#E32017',
+  headlight:    false,
+})
 
 export default function App() {
   const [gameData, setGameData]         = useState(() => pickRandomPairs(PAIRS_PER_GAME))
@@ -409,18 +411,24 @@ export default function App() {
     return 'idle'
   }
 
-  function resetGame() {
-    const fresh = pickRandomPairs(PAIRS_PER_GAME)
-    setGameData(fresh)
-    setSelected([]); setMatched(new Set())
-    setWrong([]); setCluesLeft(3); setHintCards([]); setMistakes(0)
-    setAnnouncement(null); setScreen('game')
+  // ── Full reset — used by both Play Again and Quit ─────────────────────────
+  function fullReset(nextScreen) {
+    setGameData(pickRandomPairs(PAIRS_PER_GAME))
+    setSelected([])
+    setMatched(new Set())
+    setWrong([])
+    setCluesLeft(3)
+    setHintCards([])
+    setMistakes(0)
+    setAnnouncement(null)
+    setAnnSub(null)
+    setAnnColor('#E32017')
+    setHeadlight(false)
+    setScreen(nextScreen)
   }
 
-  function quitToHome() {
-    setScreen('intro')
-    setAnnouncement(null)
-  }
+  function resetGame()  { fullReset('game')  }
+  function quitToHome() { fullReset('intro') }
 
   const matchedPairs = matched.size / 2
   const totalPairs = PAIRS_PER_GAME
@@ -627,7 +635,7 @@ export default function App() {
         </button>
       </header>
 
-      {/* ── Card grid — 8 cols × 2 rows, sized to fill remaining viewport height ── */}
+      {/* ── Card grid ── */}
       <main style={{
         flex: 1,
         padding: '10px 12px',
