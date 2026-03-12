@@ -318,20 +318,6 @@ function TubeCard({ card, state, onClick, hintPulse }) {
 // ── Main App ──────────────────────────────────────────────────────────────────
 const PAIRS_PER_GAME = 8
 
-const FRESH_STATE = () => ({
-  gameData:     pickRandomPairs(PAIRS_PER_GAME),
-  selected:     [],
-  matched:      new Set(),
-  wrong:        [],
-  cluesLeft:    3,
-  hintCards:    [],
-  mistakes:     0,
-  announcement: null,
-  annSub:       null,
-  annColor:     '#E32017',
-  headlight:    false,
-})
-
 export default function App() {
   const [gameData, setGameData]         = useState(() => pickRandomPairs(PAIRS_PER_GAME))
   const [selected, setSelected]         = useState([])
@@ -411,8 +397,8 @@ export default function App() {
     return 'idle'
   }
 
-  // ── Full reset — used by both Play Again and Quit ─────────────────────────
-  function fullReset(nextScreen) {
+  // ── Start a fresh game — used by "Board the Train", "Play Again" ────────
+  function startGame() {
     setGameData(pickRandomPairs(PAIRS_PER_GAME))
     setSelected([])
     setMatched(new Set())
@@ -424,11 +410,23 @@ export default function App() {
     setAnnSub(null)
     setAnnColor('#E32017')
     setHeadlight(false)
-    setScreen(nextScreen)
+    setScreen('game')
   }
 
-  function resetGame()  { fullReset('game')  }
-  function quitToHome() { fullReset('intro') }
+  // ── Quit to home — clears state and returns to intro ────────────────────
+  function quitToHome() {
+    setSelected([])
+    setMatched(new Set())
+    setWrong([])
+    setCluesLeft(3)
+    setHintCards([])
+    setMistakes(0)
+    setAnnouncement(null)
+    setAnnSub(null)
+    setAnnColor('#E32017')
+    setHeadlight(false)
+    setScreen('intro')
+  }
 
   const matchedPairs = matched.size / 2
   const totalPairs = PAIRS_PER_GAME
@@ -472,7 +470,7 @@ export default function App() {
       </div>
 
       <button
-        onClick={() => setScreen('game')}
+        onClick={startGame}
         style={{
           fontFamily: 'Oswald', fontSize: '17px', fontWeight: 700,
           letterSpacing: '0.12em', textTransform: 'uppercase',
@@ -534,7 +532,7 @@ export default function App() {
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
         <button
-          onClick={resetGame}
+          onClick={startGame}
           style={{
             fontFamily: 'Oswald', fontSize: '14px', fontWeight: 700,
             letterSpacing: '0.1em', textTransform: 'uppercase',
