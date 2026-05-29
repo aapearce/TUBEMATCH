@@ -7,11 +7,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      /* Floating "back to arcade" link — lives outside the React root so it
+         persists across every screen of the app without touching React code. */
+      #arcade-link {
+        position: fixed; top: 12px; left: 12px; z-index: 9999;
+        display: inline-flex; align-items: center; gap: 6px;
+        text-decoration: none; cursor: pointer;
+        font-family: "Oswald", system-ui, sans-serif; font-weight: 600;
+        letter-spacing: 1.5px; text-transform: uppercase; font-size: 13px;
+        padding: 8px 14px; border-radius: 10px; color: #eaf3ff;
+        background: rgba(10,18,34,0.78); border: 1px solid rgba(120,200,255,0.55);
+        box-shadow: 0 2px 14px rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+        transition: transform .12s, background .12s;
+      }
+      #arcade-link:hover { background: rgba(40,80,140,0.85); transform: translateY(-1px); }
+    </style>
     <script type="module" crossorigin src="/TUBEMATCH/assets/index-523574b3.js"></script>
     <link rel="stylesheet" href="/TUBEMATCH/assets/index-52cb502c.css">
   </head>
   <body>
     <div id="root"></div>
+    <a id="arcade-link" href="https://aapearce.github.io/damiens-arcade/">🕹 Arcade</a>
     
   </body>
 </html>
